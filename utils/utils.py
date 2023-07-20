@@ -1,15 +1,5 @@
-import rdkit
 import rdkit.Chem as Chem
-from rdkit.Chem import rdmolops
-from rdkit.Chem import BRICS, Recap
-from scipy.sparse import csr_matrix
-from scipy.sparse.csgraph import minimum_spanning_tree
 from collections import defaultdict
-from rdkit.Chem.EnumerateStereoisomers import EnumerateStereoisomers, StereoEnumerationOptions
-from rdkit.Chem.rdmolops import CombineMols
-import numpy as np
-import networkx as nx
-import itertools
 
 def clean_data(smile):
     mol = get_mol(smile)
@@ -19,7 +9,6 @@ def clean_data(smile):
         return True
 
 def get_mol(smiles):
-    # print(smiles)
     mol = Chem.MolFromSmiles(smiles)
     if mol is None: 
         return None
@@ -29,20 +18,12 @@ def get_mol(smiles):
     return mol
 
 def get_smiles(mol):
-    # return Chem.MolToSmiles(mol, kekuleSmiles=True)
-    # print('------->', Chem.MolToSmiles(mol))
-    # smiles = Chem.MolToSmiles(mol)
-    # if smiles is None:
-    # print(f"Check mol: {mol}")
     return Chem.MolToSmiles(mol, kekuleSmiles=True)
-    # return Chem.MolToSmiles(mol)
 
 def sanitize(mol):
     try:
         smiles = get_smiles(mol)
-        # print(f"Sanitize smiles: {smiles}")
         mol = get_mol(smiles)
-        # print(f"sanitize mol: {mol}")
     except Exception as e:
         return None
     return mol
@@ -92,7 +73,6 @@ def get_fragment_mol(mol, atom_indices):
 def get_clique_smile(mol, atoms):
     smiles = Chem.MolFragmentToSmiles(mol, atoms, kekuleSmiles=False)
     return sanitize_smiles(smiles)
-    # return Chem.CanonSmiles(smiles)
 
 def get_cliques(mol):
     n_atoms = mol.GetNumAtoms()
@@ -118,25 +98,6 @@ def get_cliques(mol):
         for id in ring:
             atom = mol.GetAtomWithIdx(id)
     cliques.extend(ssr)
-    
-
-    # nei_list = [[] for i in range(n_atoms)]
-    # for i in range(len(cliques)):
-    #     for atom in cliques[i]:
-    #         nei_list[atom].append(i)
-    
-    # # Merge Rings with intersection > 2 atoms
-    # for i in range(len(cliques)):
-    #     if len(cliques[i]) <= 2: continue
-    #     for atom in cliques[i]:
-    #         for j in nei_list[atom]:
-    #             if i >= j or len(cliques[j]) <= 2: continue
-    #             inter = set(cliques[i]) & set(cliques[j])
-    #             if len(inter) > 2:
-    #                 cliques[i].extend(cliques[j])
-    #                 cliques[i] = list(set(cliques[i]))
-    #                 cliques[j] = []
-    # print(f"number of cliques: {len(cliques)}")
     cliques = [c for c in cliques if len(c) > 0]
     nei_list = [[] for i in range(n_atoms)]
     for i in range(len(cliques)):
@@ -147,10 +108,8 @@ def get_cliques(mol):
 
 def get_cliques_edges(mol, cliques, nei_list, n_atoms):
     if len(cliques) == 1:
-    # if cliques == [[0]]:
         return [], cliques
-    # print(cliques)
-    
+
     #Build edges and add singleton cliques
     edges = defaultdict(int)
     for atom in range(n_atoms):
@@ -186,12 +145,8 @@ def get_motifs(mol):
     # Convert cliques to smiles
     cliques_smiles = []
     count = 1
-    # print("check check")
-    # print(f"cliques: {cliques}")
     for clique in cliques:
-        # print(f"Clique: {clique}")
         clique_mol = get_fragment_mol(mol, clique)
-        # print("Checkpoint")
         cliques_smiles.append(get_smiles(clique_mol))
         count += 1
 

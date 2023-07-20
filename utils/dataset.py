@@ -1,19 +1,11 @@
 from torch_geometric.datasets import TUDataset
 from torch_geometric.data import InMemoryDataset, Data
 import os
-import urllib.request
 import torch
-from torch.utils.data import Dataset
-from utils.tu2smiles import to_smiles, convert_data
+from utils.tu2smiles import to_smiles
 from utils.utils import get_mol, get_motifs, sanitize_smiles
-from utils.motif_dataset import MotifDataset
-import json
 import pandas as pd
-import csv
 from tqdm import tqdm
-from rdkit import Chem
-import numpy as np
-import json
 from torch_geometric.datasets import MoleculeNet
 import os
 

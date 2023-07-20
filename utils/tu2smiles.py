@@ -2,7 +2,6 @@ from rdkit.Chem import rdchem
 from typing import Any
 import torch
 import torch_geometric
-from torch_geometric.data import Data
 from utils.utils import get_smiles, sanitize
 
 
@@ -268,9 +267,6 @@ def to_smiles(data: 'torch_geometric.data.Data',
     visited = set()
     deleted = []
 
-    # print(f"Data: {data}")
-    # print(f"Data attribute: {data.keys}")
-    
     for i in range(len(edges)):
         src, dst = edges[i]
         if tuple(sorted(edges[i])) in visited:
@@ -288,42 +284,11 @@ def to_smiles(data: 'torch_geometric.data.Data',
         visited.add(tuple(sorted(edges[i])))
 
     mol = mol.GetMol()
-    # print(mol.GetNumAtoms())
-
-    # if kekulize:
-    # Chem.Kekulize(mol, clearAromaticFlags=True)
     mol = sanitize(mol)
-    # print(mol.GetNumAtoms())
+
     if mol is None:
         # import ipdb; ipdb.set_trace()
         return None
-    # return get_smiles(mol)
-    # Chem.SanitizeMol(mol)
-    # Chem.AssignStereochemistry(mol)
+
     return get_smiles(mol)
 
-    return Chem.MolToSmiles(mol, isomericSmiles=True)
-
-
-def convert_data(data_name, data):
-    # print(data)
-    x = data.x
-    edge_index = data.edge_index
-    edge_attr = data.edge_attr
-    new_x = []
-    new_edge_attr = []
-    # print(x.size())
-    for i in range(x.size(0)):
-        new_x.append(ATOM[data_name][torch.argmax(data.x[i]).item()])
-    new_x = torch.tensor(new_x, dtype=torch.long)
-
-    for i in range(edge_attr.size(0)):
-        new_edge_attr.append(torch.argmax(data.edge_attr[i]).item())
-    new_edge_attr = torch.tensor(new_edge_attr, dtype=torch.long)
-    # print(new_x)
-    # print(new_x.size())
-    # print(new_edge_attr)
-    # print(new_edge_attr.size())
-    # print(stop)
-    new_data = Data(x=new_x, edge_index=edge_index, edge_attr=new_edge_attr, y=data.y)
-    return new_data

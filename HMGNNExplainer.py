@@ -16,7 +16,7 @@ from tqdm import tqdm
 
 loss_fn = torch.nn.CrossEntropyLoss()
 
-data_name = 'Mutagenicity'
+data_name = 'PTC_MR'
 
 if data_name == "Mutagenicity":
     num_nodes = 226
